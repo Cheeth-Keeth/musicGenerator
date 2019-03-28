@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Music Generator</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="../static/css/main.css">
+    <script type='text/javascript' src='//www.midijs.net/lib/midi.js'></script>
+</head>
+<body>
+    <section>
+            <a href="#main"><h2>Music Generator</h2></a>
+            <nav>
+                <ul>
+                    <li><a href="#how">How It Works</a></li>
+                    <li>|</li>
+                    <li><a href="#g">Generate</a></li>
+                </ul>
+            </nav>
+    </section>
+
+    <div id="overlay"></div>
+
+    <div id="main"></div>
+    <div class="home">
+        <div class="start"> 
+            <h1>Music Generator</h1>
+            <p style="padding-left: 10px;">A recurent neural network for generating melodies</p>
+        </div>
+    </div>
+
+
+    <div id="how">
+    <div class="about">
+        <h1 class="lg-heading">How It Works</h1>
+        
+        <div class="about-info">
+            <div class="info info-1">
+                <h3>Data Processing <i class="fas fa-layer-group"></i></h3>
+                <p>For this project I used the maestro dataset which constist of about 500 melodies from different years. In order to use these files, a mapping between notes and integers needed to be established. I then looped through each file and split each song into sequences of 100 notes labeled with the 101th note. After normalizing the input and coverting the output to categorial data the data was ready for the network</p>
+            </div>
+            
+            <div class="info info-2">
+                <h3>Training <i class="fas fa-dumbbell"></i></h3>
+                <p>To train the data I used an LSTM network which has the advantage of taking the order of its inputs into account. I also used Dropout layers which sets a given percentage of inputs to zero to prevent overfitting and Dense layers which act as fully connected layers. I used the softmax activation function, categorial cross entropy as the loss function and rmsprop as the optimizer</p>
+            </div>
+            
+            <div class="info info-3">
+                <h3>Generating <i class="fas fa-music"></i></h3>
+                <p>To generate a melody, a note was picked at random and then fed into the network to make a prediction. The prediction was then added to sequence and then fed back into the network to make another prediction. This went on for 500 iterations which is the approximate length of a song. The predicted seqeunce then had to be converted back into the corresponding notes and chords and then converted into a midi file</p>
+            </div>
+            
+            <div class="info info-4">
+                <h3>Technologies <i class="fas fa-drafting-compass"></i></h3>
+                <p>Keras: A high level neural network library capable of running on top of TensorFlow designed for fast experimentation
+                <br /><br />Music21: A python toolkit enabling the creation of Note and Chord objects which can be concatenated to create melodies</p>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="g"></div>
+        <div class="generate">
+            <form  method="post" action="/"><button id="button" type="submit" name="Generate" value="Generate">Generate</button></form>
+            {% if prediction != None %}
+                <button id="button" onClick={{prediction}}>Play</button>
+                <button id="button" onClick="MIDIjs.stop();">Stop</button>
+            {% endif %}
+        </div>
+
+    
+</body>
+</html>

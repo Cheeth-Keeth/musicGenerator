@@ -1,25 +1,17 @@
-import glob
 import pickle
+import random;
+
 import numpy
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import tensorflow as tf
-from music21 import converter, instrument, note, chord, stream
-from keras.models import Sequential
+from keras.layers import Activation
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers import LSTM
-from keras.layers import TimeDistributed
-from keras.layers import Activation
-from keras.utils import np_utils
-from keras.callbacks import ModelCheckpoint
-from keras.optimizers import Adam
+from keras.models import Sequential
+from music21 import instrument, note, chord, stream
 
 
 def generate():
-    with open('data/noteData/notesTest', 'rb') as filepath:
+    with open('model/data/noteData/notesTest', 'rb') as filepath:
         notes = pickle.load(filepath)
 
     pitchnames = sorted(set(item for item in notes))
@@ -29,7 +21,9 @@ def generate():
     network_input, normalized_input = prepare_sequence(notes, pitchnames, n_vocab)
     model = create_network(normalized_input, n_vocab)
     prediction_output = generate_notes(model, network_input, pitchnames, n_vocab)
-    create_midi(prediction_output)
+    path = create_midi(prediction_output)
+    print(path)
+    return path
 
 
 def prepare_sequence(notes, pitchnames, n_vocab):
@@ -72,7 +66,7 @@ def create_network(network_input, n_vocab):
     model.add(Activation('softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
-    model.load_weights('data/weights.hdf5')
+    model.load_weights('model/data/weights.hdf5')
 
     return model
 
@@ -128,8 +122,14 @@ def create_midi(prediction_output):
 
     midi_stream = stream.Stream(output_notes)
 
-    midi_stream.write('midi', fp='test_outputpiano3.mid')
+    number = random.randint(1,1000000)
 
+    path = "static/" + str(number) +'random.mid'
+
+    midi_stream.write('midi', fp=path)
+
+    return path
 
 if __name__ == '__main__':
     generate()
+

@@ -1,21 +1,15 @@
 import glob
 import pickle
+
 import numpy
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import tensorflow as tf
-from music21 import converter, instrument, note, chord
-from keras.models import Sequential
+from keras.callbacks import ModelCheckpoint
+from keras.layers import Activation
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers import LSTM
-from keras.layers import TimeDistributed
-from keras.layers import Activation
+from keras.models import Sequential
 from keras.utils import np_utils
-from keras.callbacks import ModelCheckpoint
-from keras.optimizers import Adam
+from music21 import converter, instrument, note, chord
 
 
 def main():
@@ -37,8 +31,7 @@ def main():
 def get_notes():
     notes = []
     count = 0
-    for file in glob.glob('piano/*.midi'):
-        print(count)
+    for file in glob.glob('model/piano/*.midi'):
         count += 1
         midi = converter.parse(file)
         notes_to_parse = None
@@ -55,7 +48,7 @@ def get_notes():
             elif isinstance(part, chord.Chord):
                 notes.append('.'.join(str(n) for n in part.normalOrder))
 
-    with open('data/notespiano', 'wb') as filepath:
+    with open('model/data/notespiano', 'wb') as filepath:
         pickle.dump(notes, filepath)
 
     print(notes)
@@ -124,7 +117,7 @@ def create_network(network_input, n_vocab):
 
 
 def train(model, network_input, network_output):
-    checkpoint = ModelCheckpoint(filepath='data' + '/pianomodel-{epoch:02d}.hdf5', monitor='loss',
+    checkpoint = ModelCheckpoint(filepath='model/data' + '/piano-{epoch:02d}.hdf5', monitor='loss',
                                  verbose=0,
                                  save_best_only=True,
                                  mode='min')
